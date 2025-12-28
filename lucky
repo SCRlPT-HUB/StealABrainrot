@@ -1,0 +1,116 @@
+-- Services
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- ScreenGui
+local gui = Instance.new("ScreenGui")
+gui.Name = "BrainrotLuckGui"
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main Frame
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.Size = UDim2.new(0, 220, 0, 120)
+frame.Position = UDim2.new(0.5, -110, 0.5, -60)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.Active = true
+
+-- Round frame
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 16)
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Parent = frame
+title.Size = UDim2.new(1, -20, 0, 40)
+title.Position = UDim2.new(0, 10, 0, 10)
+title.BackgroundTransparency = 1
+title.Text = "STEAL A BRAINROT\n99X LUCK SCRIPT"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.TextWrapped = true
+
+-- Button
+local button = Instance.new("TextButton")
+button.Parent = frame
+button.Size = UDim2.new(1, -40, 0, 35)
+button.Position = UDim2.new(0, 20, 1, -50)
+button.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+button.Text = "START LUCK"
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Font = Enum.Font.GothamBold
+button.TextScaled = true
+button.BorderSizePixel = 0
+button.AutoButtonColor = false
+
+-- Round button
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 14)
+
+-- RGB Button Effect
+local running = false
+task.spawn(function()
+	while true do
+		if running then
+			for h = 0, 1, 0.01 do
+				button.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+				task.wait(0.02)
+			end
+		else
+			task.wait(0.1)
+		end
+	end
+end)
+
+button.MouseButton1Click:Connect(function()
+	if running then return end
+	running = true
+	button.Text = "LUCK STARTING"
+end)
+
+------------------------------------------------
+-- 🔥 ACTUAL GOOD DRAGGING (PC + MOBILE)
+------------------------------------------------
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
