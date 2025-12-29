@@ -1,5 +1,5 @@
 --====================================================
---// DRAKOSCRIPTS LOADING SCREEN (NEW VERSION)
+--// DRAKOSCRIPTS LOADING SCREEN (GUI ONLY)
 --====================================================
 
 local Players = game:GetService("Players")
@@ -41,7 +41,7 @@ title.TextScaled = true
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = main
 
--- TikTok
+-- Socials
 local tiktok = Instance.new("TextLabel")
 tiktok.Size = UDim2.fromScale(0.6,0.1)
 tiktok.Position = UDim2.fromScale(0.38,0.23)
@@ -53,7 +53,6 @@ tiktok.TextScaled = true
 tiktok.TextXAlignment = Enum.TextXAlignment.Left
 tiktok.Parent = main
 
--- YouTube
 local yt = Instance.new("TextLabel")
 yt.Size = UDim2.fromScale(0.6,0.1)
 yt.Position = UDim2.fromScale(0.38,0.33)
@@ -88,229 +87,89 @@ loadingText.TextColor3 = Color3.new(1,1,1)
 loadingText.TextScaled = true
 loadingText.Parent = barBG
 
--- 60 SECONDS LOADING
-local totalTime = 60
-local start = tick()
-
-while tick() - start < totalTime do
-	local progress = math.clamp((tick() - start) / totalTime, 0, 1)
-	bar.Size = UDim2.fromScale(progress,1)
-	loadingText.Text = "Loading... "..math.floor(progress*100).."%"
-	task.wait(0.1)
+-- Fake Loading
+for i = 1, 100 do
+	bar.Size = UDim2.fromScale(i/100,1)
+	loadingText.Text = "Loading... "..i.."%"
+	task.wait(0.05)
 end
 
 loadingText.Text = "Loaded!"
 task.wait(0.5)
 loadingGui:Destroy()
 
--- =================== INSTANT STEAL SCRIPT ===================
-
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-
-local isTeleporting = false
-local fastStealOn = false
-local fastStealConn = nil
-
--- ================= FUNCTIONS =================
-
-local function getCharacter()
-    local char = LocalPlayer.Character
-    if not char or not char.Parent then
-        char = LocalPlayer.CharacterAdded:Wait()
-    end
-    return char
-end
-
-local function getMyPlot()
-    local plots = workspace:FindFirstChild("Plots")
-    if not plots then return nil end
-
-    for _, plot in ipairs(plots:GetChildren()) do
-        local label =
-            plot:FindFirstChild("PlotSign")
-            and plot.PlotSign:FindFirstChild("SurfaceGui")
-            and plot.PlotSign.SurfaceGui:FindFirstChild("Frame")
-            and plot.PlotSign.SurfaceGui.Frame:FindFirstChild("TextLabel")
-
-        if label then
-            local t = label.Text or label.ContentText or ""
-            if t:find(LocalPlayer.DisplayName) and t:find("Base") then
-                return plot
-            end
-        end
-    end
-    return nil
-end
-
-local function getDeliveryHitbox()
-    local plot = getMyPlot()
-    if not plot then return nil end
-
-    local hitbox = plot:FindFirstChild("DeliveryHitbox", true)
-    if hitbox and hitbox:IsA("BasePart") then
-        return hitbox
-    end
-    return nil
-end
-
-local function shortTeleport(targetCF)
-    if isTeleporting then return end
-    isTeleporting = true
-
-    local char = getCharacter()
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then isTeleporting = false return end
-
-    local cam = workspace.CurrentCamera
-    local oldCF = hrp.CFrame
-    local oldCamType = cam.CameraType
-    local oldCamCF = cam.CFrame
-
-    cam.CameraType = Enum.CameraType.Scriptable
-    cam.CFrame = oldCamCF
-
-    hrp.CFrame = targetCF
-    task.wait(0.25)
-    hrp.CFrame = oldCF
-
-    cam.CameraType = oldCamType
-    isTeleporting = false
-end
-
-local function instantSteal()
-    local delivery = getDeliveryHitbox()
-    if not delivery then return end
-
-    local cf =
-        delivery.CFrame
-        + delivery.CFrame.LookVector * 3
-        + Vector3.new(0, 3, 0)
-
-    shortTeleport(cf)
-end
-
-local function forwardTP()
-    local char = getCharacter()
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CFrame = hrp.CFrame + hrp.CFrame.LookVector * 8
-    end
-end
-
-local function patchPrompt(prompt)
-    if prompt:IsA("ProximityPrompt") then
-        pcall(function()
-            prompt.HoldDuration = 0.01
-        end)
-    end
-end
-
-local function setFastSteal(on)
-    fastStealOn = on
-
-    if fastStealConn then
-        fastStealConn:Disconnect()
-        fastStealConn = nil
-    end
-
-    if on then
-        for _, obj in ipairs(workspace:GetDescendants()) do
-            patchPrompt(obj)
-        end
-
-        fastStealConn = workspace.DescendantAdded:Connect(function(obj)
-            patchPrompt(obj)
-        end)
-    end
-end
-
--- ================= UI =================
+--====================================================
+--// INSTANT STEAL GUI (VISUAL ONLY)
+--====================================================
 
 local guiParent = game:GetService("CoreGui")
 if gethui then pcall(function() guiParent = gethui() end) end
-
-local old = guiParent:FindFirstChild("InstantSteal_UI")
-if old then old:Destroy() end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "InstantSteal_UI"
 gui.ResetOnSpawn = false
 gui.Parent = guiParent
 
-local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 230, 0, 185)
-main.Position = UDim2.new(0.65, -115, 0.5, -92)
-main.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-main.Parent = gui
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 16)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,230,0,185)
+frame.Position = UDim2.new(0.65,-115,0.5,-92)
+frame.BackgroundColor3 = Color3.fromRGB(20,20,30)
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,16)
 
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundTransparency = 1
-title.Text = "Instant Steal"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 16
-title.TextColor3 = Color3.new(1,1,1)
-title.Parent = main
+local titleBar = Instance.new("TextLabel")
+titleBar.Size = UDim2.new(1,0,0,40)
+titleBar.BackgroundTransparency = 1
+titleBar.Text = "Instant Steal"
+titleBar.Font = Enum.Font.GothamBold
+titleBar.TextSize = 16
+titleBar.TextColor3 = Color3.new(1,1,1)
+titleBar.Parent = frame
 
--- ===== DRAGGABLE =====
-local dragging = false
-local dragStart
-local startPos
-
-title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = main.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
+-- Dragging
+local dragging, dragStart, startPos
+titleBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
 end)
 
 game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if dragging and
-       (input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - dragStart
-        main.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
+	if dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
 end)
 
--- ================= BUTTONS =================
-local function makeBtn(text, y, color)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1, -20, 0, 32)
-    b.Position = UDim2.new(0, 10, 0, y)
-    b.Text = text
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 14
-    b.BackgroundColor3 = color
-    b.TextColor3 = Color3.new(1,1,1)
-    b.Parent = main
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
-    return b
+-- Buttons (NO FUNCTION)
+local function makeBtn(text,y,color)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1,-20,0,32)
+	b.Position = UDim2.new(0,10,0,y)
+	b.Text = text
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 14
+	b.BackgroundColor3 = color
+	b.TextColor3 = Color3.new(1,1,1)
+	b.AutoButtonColor = false
+	b.Parent = frame
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+	return b
 end
 
-local instantBtn = makeBtn("INSTANT STEAL", 50, Color3.fromRGB(220, 60, 60))
-local forwardBtn = makeBtn("TP FORWARD", 90, Color3.fromRGB(90, 150, 255))
-local fastBtn = makeBtn("FAST STEAL: OFF", 130, Color3.fromRGB(120, 120, 140))
-
-instantBtn.MouseButton1Click:Connect(instantSteal)
-forwardBtn.MouseButton1Click:Connect(forwardTP)
-fastBtn.MouseButton1Click:Connect(function()
-    setFastSteal(not fastStealOn)
-    fastBtn.Text = fastStealOn and "FAST STEAL: ON" or "FAST STEAL: OFF"
-end)
+makeBtn("INSTANT STEAL", 50, Color3.fromRGB(220,60,60))
+makeBtn("TP FORWARD", 90, Color3.fromRGB(90,150,255))
+makeBtn("FAST STEAL: OFF", 130, Color3.fromRGB(120,120,140))
